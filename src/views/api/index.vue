@@ -80,7 +80,8 @@ export default {
     let instance = this.data.instance;
     let apiInfo = null;
     instance.paths.forEach(function (path) {
-      if (path.operationId == params.summary) {
+      // 精确匹配完整的路径参数，解决重复operationId导致的覆盖问题
+      if (params.summary == path.operationId + "_" + path.id) {
         apiInfo = path;
       }
     });
@@ -143,5 +144,4 @@ export default {
   }
 };
 </script>
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>

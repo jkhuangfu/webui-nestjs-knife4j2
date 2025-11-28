@@ -26,8 +26,8 @@
       <a-layout>
         <a-layout-header style="padding: 0;background: #fff;    height: 56px; line-height: 56px;">
           <GlobalHeader @searchKey="searchKey" @searchClear="searchClear" :documentTitle="documentTitle"
-            :collapsed="collapsed" :headerClass="headerClass" :currentUser="currentUser" :onCollapse="handleMenuCollapse"
-            :onMenuClick="item => handleMenuClick(item)" />
+            :collapsed="collapsed" :headerClass="headerClass" :currentUser="currentUser"
+            :onCollapse="handleMenuCollapse" :onMenuClick="item => handleMenuClick(item)" />
         </a-layout-header>
         <context-menu :itemList="menuItemList" :visible.sync="menuVisible" @select="onMenuSelect" />
         <a-tabs hideAdd v-model="activeKey" @contextmenu.native="e => onContextmenu(e)" type="editable-card"
@@ -52,7 +52,6 @@ import SiderMenu from "@/components/SiderMenu";
 import GlobalHeader from "@/components/GlobalHeader";
 import GlobalFooter from "@/components/GlobalFooter";
 import GlobalHeaderTab from "@/components/GlobalHeaderTab";
-import { getMenuData } from "./menu";
 import KUtils from "@/core/utils";
 import SwaggerBootstrapUi from "@/core/Knife4jAsync.js";
 import {
@@ -141,12 +140,6 @@ export default {
   },
   updated() {
     this.openDefaultTabByPath();
-
-    //this.selectDefaultMenu();
-  },
-  beforeMount() {
-  },
-  mounted() {
 
     //this.selectDefaultMenu();
   },
@@ -284,20 +277,10 @@ export default {
       var swagger = new SwaggerBootstrapUi(options);
       try {
         swagger.main();
-        //this.MenuData=this.swagger.menuData;
-        //this.swaggerCurrentInstance=this.swagger.currentInstance;
-        //this.$store.dispatch("globals/setMenuData", this.MenuData);
-        //缓存cache
-        //this.$localStore.setItem(constant.globalGitApiVersionCaches, this.swagger.cacheApis);
-        //console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa------------------------")
-        //赋值
         this.$store.dispatch("globals/setSwagger", swagger);
       } catch (e) {
         console.error(e);
       }
-      //初始化相关操作
-      //初始化菜单数据
-      //this.MenuData = getMenuData();
       //数据赋值
       this.$store.dispatch("header/getCurrentUser");
     },
@@ -317,7 +300,6 @@ export default {
         var regx = ".*?" + key + ".*";
         //console.log(this.cacheMenuData);
         this.cacheMenuData.forEach(function (menu) {
-          console.log(menu)
           //遍历children
           var tmpChildrens = [];
           let _tagNameFlag = KUtils.searchMatch(regx, menu.name);
