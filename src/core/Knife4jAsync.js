@@ -3690,26 +3690,8 @@ SwaggerBootstrapUi.prototype.createDetailMenu = function (addFlag) {
     var len = tag.childrens.length;
     // console.log(tag);
     var _lititle = "";
-    if (len == 0) {
-      if (that.settings.showTagStatus) {
-        _lititle = tag.name + "(" + tag.description + ")";
-      } else {
-        _lititle = tag.name;
-      }
-      // 如果当前tag分组下不存在接口,当前tag的path不允许点击,否则会出现白板
-      // https://gitee.com/xiaoym/knife4j/issues/I2CVTF
-      // modified by xiaoymin 2021年5月3日 19:40:41
-      menuArr.push({
-        groupName: groupName,
-        groupId: groupId,
-        key: md5(_lititle),
-        name: _lititle,
-        icon: "icon-APIwendang",
-        // path: groupName + '/' + tag.name
-        // 不存在接口,直接指向home主页
-        path: "",
-      });
-    } else {
+    // 只有当标签下有API操作时，才生成菜单项，解决用户看到和主页功能一模一样的default菜单的问题
+    if (len > 0) {
       if (that.settings.showTagStatus) {
         _lititle = tag.name + "(" + tag.description + ")";
       } else {
