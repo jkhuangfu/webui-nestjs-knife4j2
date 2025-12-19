@@ -5,7 +5,8 @@
     </a-row>
     <a-row v-else-if="settings.enableFooter">
       <div class="copyright">Apache License 2.0 | Copyright
-        <a-icon type="copyright" />  Powered by <a target="_blank" href="https://github.com/jkhuangfu/nestjs-knife4j2">nestjs-knife4j2</a>
+        <a-icon type="copyright" /> Powered by <a target="_blank"
+          href="https://github.com/jkhuangfu/nestjs-knife4j-plus">nestjs-knife4j-plus</a>
       </div>
     </a-row>
   </div>
@@ -38,4 +39,3 @@ export default {
 <style lang="less" scoped>
 @import "./index.less";
 </style>
-
