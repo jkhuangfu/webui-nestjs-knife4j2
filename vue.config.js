@@ -7,8 +7,8 @@ const productionGzipExtensions = ["js", "css"];
 module.exports = {
   transpileDependencies: [/[/\\]node_modules[/\\](.+?)?mermaid(.*)/],
   publicPath: ".",
-  assetsDir: "webjars",
-  outputDir: "dist",
+  assetsDir: "assets",
+  outputDir: "ui",
   lintOnSave: false,
   productionSourceMap: false,
   indexPath: "doc.html",
@@ -26,7 +26,7 @@ module.exports = {
     proxy: {
       "/": {
         //target: 'http://localhost:8990/',
-        target: "http://localhost:4000/",
+        target: "http://localhost:3000/",
         /* target: 'http://knife4j.xiaominfo.com/', */
         ws: true,
         changeOrigin: true,
