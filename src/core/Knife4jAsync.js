@@ -4823,22 +4823,42 @@ SwaggerBootstrapUi.prototype.initApiInfoAsyncOAS3 = function (swpinfo) {
                   }
                   for (var prop in requestProperties) {
                     var parameterInfo = requestProperties[prop];
-                    //该properties可能是类结构
-                    let _propScheObject = that.bodyParameterResolverSchema(
-                      parameterInfo,
-                      swpinfo.oas2
-                    );
-                    if (KUtils.checkUndefined(_propScheObject)) {
-                      that.assembleParameterOAS3(_propScheObject, swpinfo, []);
-                    } else {
+                    // --- 修改开始：增加对 multipart/form-data 和 x-www-form-urlencoded 的判断 ---
+                    if (
+                      consume.indexOf("multipart/form-data") > -1 ||
+                      consume.indexOf("application/x-www-form-urlencoded") > -1
+                    ) {
                       parameterInfo["name"] = prop;
-                      parameterInfo["in"] = "query";
+                      parameterInfo["in"] = "formData";
                       that.assembleParameterOAS3(
                         parameterInfo,
                         swpinfo,
                         requireArray
                       );
+                    } else {
+                      // 原有逻辑保持不变，处理 JSON Body 等情况
+                      //该properties可能是类结构
+                      let _propScheObject = that.bodyParameterResolverSchema(
+                        parameterInfo,
+                        swpinfo.oas2
+                      );
+                      if (KUtils.checkUndefined(_propScheObject)) {
+                        that.assembleParameterOAS3(
+                          _propScheObject,
+                          swpinfo,
+                          []
+                        );
+                      } else {
+                        parameterInfo["name"] = prop;
+                        parameterInfo["in"] = "query";
+                        that.assembleParameterOAS3(
+                          parameterInfo,
+                          swpinfo,
+                          requireArray
+                        );
+                      }
                     }
+                    // --- 修改结束 ---
                   }
                 } else {
                   // 此处有可能是array类型
