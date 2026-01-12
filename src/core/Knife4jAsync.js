@@ -359,7 +359,7 @@ SwaggerBootstrapUi.prototype.analysisGroupSuccess = function (data) {
     var g = new SwaggerBootstrapUiInstance(
       KUtils.toString(group.name, "").replace(/\//g, "-"),
       group.location,
-      group.swaggerVersion
+      "3.0.0" || group.swaggerVersion
     );
     g.url = group.url;
     // 测试api接口JSON
@@ -1330,7 +1330,7 @@ SwaggerBootstrapUi.prototype.analysisDefinitionAsyncOAS2 = function (
                       var addpties = propobj["additionalProperties"];
                       that.log(
                         "------解析map-=-----------additionalProperties,defName:" +
-                        name
+                          name
                       );
                       // 判断是否additionalProperties中还包含additionalProperties属性
                       let addtionalClassFinder =
@@ -1727,7 +1727,7 @@ SwaggerBootstrapUi.prototype.analysisDefinitionAsyncOAS3 = function (
                       var addpties = propobj["additionalProperties"];
                       that.log(
                         "------解析map-=-----------additionalProperties,defName:" +
-                        name
+                          name
                       );
                       // 判断是否additionalProperties中还包含additionalProperties属性
                       let addtionalClassFinder =
@@ -3088,7 +3088,7 @@ SwaggerBootstrapUi.prototype.analysisDefinition = function (menu) {
   }
   that.log(
     "解析refTreetableparameters结束,耗时：" +
-    (new Date().getTime() - pathStartTime)
+      (new Date().getTime() - pathStartTime)
   );
   that.log(new Date().toTimeString());
 };
@@ -5874,7 +5874,7 @@ SwaggerBootstrapUi.prototype.readOpenApiSpeci = function (
     } else {
       def = this.readOpenApiSpeciOAS3(apiInfo, swaggerData);
       // copyOpenApi["components"] = def;
-      copyOpenApi['components'] = { schemas: def };
+      copyOpenApi["components"] = { schemas: def };
     }
     swpinfo.openApiRaw = copyOpenApi;
     // 查询definitions节点

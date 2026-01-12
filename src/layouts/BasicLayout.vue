@@ -261,7 +261,7 @@ export default {
         store: this.$store,
         localStore: this.$localStore,
         routeParams: that.$route.params,
-        plus: this.getPlusStatus(),
+        plus: true,//this.getPlusStatus(),
         i18n: tmpI18n,
         configSupport: false,
         i18nInstance: this.getCurrentI18nInstance(),
@@ -271,8 +271,6 @@ export default {
       this.initSwagger(swaggerOptions);
     },
     initSwagger(options) {
-      //console.log("初始化Swagger")
-      //console.log(options)
       this.i18n = options.i18nInstance;
       var swagger = new SwaggerBootstrapUi(options);
       try {
