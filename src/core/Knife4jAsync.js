@@ -5632,9 +5632,28 @@ SwaggerBootstrapUi.prototype.createApiInfoInstance = function (
     if (reg.test(pathname)) {
       tempPath = RegExp.$1;
     }
+    // 如果 servers[0].url 已经包含路径前缀，则不再从 window.location.pathname 中提取前缀
+    var serverUrl = that.currentInstance.host || "";
+    var serverHasPath = false;
+    if (serverUrl !== "") {
+      if (serverUrl.startsWith("http")) {
+        try {
+          var urlObj = new URL(serverUrl);
+          serverHasPath = urlObj.pathname !== "" && urlObj.pathname !== "/";
+        } catch (e) {
+          serverHasPath = false;
+        }
+      } else {
+        serverHasPath = serverUrl !== "/";
+      }
+    }
     //聚合情况下，nginx转发代理的情况，需要避免重复添加
-    if (newfullPath.indexOf(tempPath) === -1) {
-      newfullPath += tempPath;
+    // 检查原始 path 是否已经包含 tempPath，避免重复添加
+    if (newfullPath.indexOf(tempPath) === -1 && !serverHasPath) {
+      // 如果原始 path 已经以 tempPath 开头，则不再追加
+      if (!path.startsWith(tempPath + "/") && path !== tempPath) {
+        newfullPath += tempPath;
+      }
     }
   }
   newfullPath += path;
