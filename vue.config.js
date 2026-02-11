@@ -1,17 +1,17 @@
-const TerserPlugin = require("terser-webpack-plugin");
-var path = require("path");
+const TerserPlugin = require('terser-webpack-plugin')
+var path = require('path')
 // const WebpackBundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
-const CompressionWebpackPlugin = require("compression-webpack-plugin");
-const CopyWebPackPlugin = require("copy-webpack-plugin");
-const productionGzipExtensions = ["js", "css"];
+const CompressionWebpackPlugin = require('compression-webpack-plugin')
+const CopyWebPackPlugin = require('copy-webpack-plugin')
+const productionGzipExtensions = ['js', 'css']
 module.exports = {
   transpileDependencies: [/[/\\]node_modules[/\\](.+?)?mermaid(.*)/],
-  publicPath: ".",
-  assetsDir: "assets",
-  outputDir: "ui",
+  publicPath: '.',
+  assetsDir: 'assets',
+  outputDir: '../ui',
   lintOnSave: false,
   productionSourceMap: false,
-  indexPath: "doc.html",
+  indexPath: 'doc.html',
   css: {
     loaderOptions: {
       less: {
@@ -24,9 +24,9 @@ module.exports = {
       ignored: /node_modules/,
     },
     proxy: {
-      "/": {
+      '/': {
         //target: 'http://localhost:8990/',
-        target: "http://localhost:3000/",
+        target: 'http://localhost:3000/',
         /* target: 'http://knife4j.xiaominfo.com/', */
         ws: true,
         changeOrigin: true,
@@ -44,12 +44,7 @@ module.exports = {
             compress: {
               drop_console: true,
               drop_debugger: true,
-              pure_funcs: [
-                "console.log",
-                "console.debug",
-                "window.console.log",
-                "window.console.debug",
-              ], // 移除console
+              pure_funcs: ['console.log', 'console.debug', 'window.console.log', 'window.console.debug'], // 移除console
             },
           },
         }),
@@ -57,17 +52,17 @@ module.exports = {
     },
     plugins: [
       new CompressionWebpackPlugin({
-        algorithm: "gzip",
-        test: new RegExp("\\.(" + productionGzipExtensions.join("|") + ")$"),
+        algorithm: 'gzip',
+        test: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$'),
         threshold: 10240,
         minRatio: 0.8,
       }),
       new CopyWebPackPlugin([
         {
-          from: path.resolve(__dirname, "public/oauth"),
-          to: path.resolve(__dirname, "dist/webjars/oauth"),
+          from: path.resolve(__dirname, 'public/oauth'),
+          to: path.resolve(__dirname, 'dist/webjars/oauth'),
         },
       ]),
     ],
   },
-};
+}

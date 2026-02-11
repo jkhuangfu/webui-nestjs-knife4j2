@@ -266,7 +266,7 @@ export default {
         configSupport: false,
         i18nInstance: this.getCurrentI18nInstance(),
         //覆盖url地址,多个服务的组合
-        url: "/services.json"
+        url: "./services.json"
       };
       this.initSwagger(swaggerOptions);
     },
