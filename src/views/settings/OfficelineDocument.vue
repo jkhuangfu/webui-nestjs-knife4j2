@@ -3,16 +3,16 @@
     <a-row class="markdown-row">
       <a-row class="globalparameters">
         <a-row class="gptips" v-html="$t('offline.des')">
-          Knife4j提供导出4种格式的离线文档(Html/Markdown/Word/OpenAPI)
+          Knife4j提供导出4种格式的离线文档(Markdown/Word/OpenAPI)
         </a-row>
       </a-row>
       <a-row class="knife4j-download-button">
         <a-button @click="triggerDownloadMarkdown">
           <a-icon type="file-markdown" /><span v-html="$t('offline.download.markdown')">下载Markdown</span>
         </a-button>
-        <a-button type="default" @click="triggerDownloadHtml">
+        <!-- <a-button type="default" @click="triggerDownloadHtml">
           <a-icon type="file-text" /><span v-html="$t('offline.download.html')">下载Html</span>
-        </a-button>
+        </a-button> -->
         <a-button type="default" @click="triggerDownloadWord">
           <a-icon type="file-word" /><span v-html="$t('offline.download.word')">下载Word</span>
         </a-button>
