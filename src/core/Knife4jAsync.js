@@ -3895,6 +3895,141 @@ SwaggerBootstrapUi.prototype.analysisAllOfOAS2 = function (allOf) {
 };
 
 /**
+ * analysisAllOfOAS3 解析allOf OAS3
+ * @param {*} allOf
+ * @param {*} oas2 是否是OAS2版本
+ * @returns {string} 返回新的模型名
+ */
+SwaggerBootstrapUi.prototype.analysisAllOfOAS3 = function (allOf, oas2) {
+  var that = this;
+  // 根据OAS版本选择对应的路径
+  const refPattern = oas2 ? "#/definitions/(.*)$" : "#/components/schemas/(.*)$";
+  const schemaKey = oas2 ? "definitions" : "schemas";
+  
+  const menu = that.currentInstance.swaggerData;
+  const components = oas2 ? menu : (menu.components || {});
+  const schemas = components[schemaKey] || {};
+  
+  // 合并allOf中的所有schema
+  const mergedSchema = { type: "object", properties: {}, required: [] };
+  const refNames = [];
+  
+  for (const item of allOf) {
+    if (item.$ref) {
+      const regex = new RegExp(refPattern, "ig");
+      const match = regex.exec(item.$ref);
+      if (!match) {
+        that.error("Unable to parse object name from " + item.$ref);
+        continue;
+      }
+      const objName = match[1];
+      refNames.push(objName);
+      
+      const refSchema = schemas[objName];
+      if (refSchema) {
+        if (refSchema.properties) {
+          Object.assign(mergedSchema.properties, refSchema.properties);
+        }
+        if (refSchema.required && Array.isArray(refSchema.required)) {
+          mergedSchema.required = [...new Set([...mergedSchema.required, ...refSchema.required])];
+        }
+        // 复制其他属性
+        Object.keys(refSchema).forEach(key => {
+          if (key !== 'properties' && key !== 'required') {
+            mergedSchema[key] = refSchema[key];
+          }
+        });
+      }
+    } else if (item.properties) {
+      Object.assign(mergedSchema.properties, item.properties);
+      if (item.required && Array.isArray(item.required)) {
+        mergedSchema.required = [...new Set([...mergedSchema.required, ...item.required])];
+      }
+      // 复制其他属性
+      Object.keys(item).forEach(key => {
+        if (key !== 'properties' && key !== 'required') {
+          mergedSchema[key] = item[key];
+        }
+      });
+    }
+  }
+  
+  // 生成新的模型名
+  const newModelName = `AllOf<${refNames.join(",")}>`;
+  
+  // 检查是否已存在
+  if (schemas[newModelName]) {
+    return newModelName;
+  }
+  
+  // 将合并后的schema放入schemas
+  schemas[newModelName] = mergedSchema;
+  
+  // 构建SwaggerBootstrapUiDefinition对象
+  const swud = new SwaggerBootstrapUiDefinition();
+  swud.name = newModelName;
+  swud.ignoreFilterName = newModelName;
+  swud.properties = [];
+  swud.value = {};
+  
+  // 解析properties
+  for (const propName in mergedSchema.properties) {
+    if (mergedSchema.properties.hasOwnProperty(propName)) {
+      const propObj = mergedSchema.properties[propName];
+      const spropObj = new SwaggerBootstrapUiProperty();
+      spropObj.name = propName;
+      spropObj.originProperty = propObj;
+      spropObj.type = KUtils.propValue("type", propObj, "string");
+      spropObj.description = KUtils.propValue("description", propObj, "");
+      spropObj.example = KUtils.getExample("example", propObj, "");
+      spropObj.format = KUtils.propValue("format", propObj, "");
+      spropObj.required = mergedSchema.required.includes(propName);
+      
+      // 设置默认值
+      let propValue = "";
+      if (propObj.hasOwnProperty("type")) {
+        const type = propObj["type"];
+        if (propObj.hasOwnProperty("example")) {
+          propValue = type === "string" ? KUtils.getExample("example", propObj, "") : propObj["example"];
+        } else if (KUtils.checkIsBasicType(type)) {
+          propValue = KUtils.getBasicTypeValue(type);
+        }
+      }
+      spropObj.value = propValue;
+      
+      // 处理引用类型
+      if (propObj.hasOwnProperty("$ref")) {
+        const regex = new RegExp(refPattern, "ig");
+        const match = regex.exec(propObj.$ref);
+        if (match) {
+          spropObj.refType = match[1];
+        }
+      } else if (propObj.hasOwnProperty("items") && propObj.items && propObj.items.$ref) {
+        const regex = new RegExp(refPattern, "ig");
+        const match = regex.exec(propObj.items.$ref);
+        if (match) {
+          spropObj.refType = match[1];
+        }
+      }
+      
+      swud.properties.push(spropObj);
+      swud.value[propName] = propValue;
+    }
+  }
+  
+  swud.init = true;
+  that.currentInstance.difArrs.push(swud);
+  
+  // 所有类classModel的treeTable参数
+  const swudTree = new SwaggerBootstrapUiTreeTableRefParameter();
+  swudTree.name = newModelName;
+  swudTree.id = md5(newModelName);
+  that.currentInstance.swaggerTreeTableModels[newModelName] = swudTree;
+  
+  return newModelName;
+};
+
+/**
  * 解析oas2的接口
  * @param {*} swpinfo
  */
@@ -4952,6 +5087,17 @@ SwaggerBootstrapUi.prototype.initApiInfoAsyncOAS3 = function (swpinfo) {
                   definitionType = ptype;
                   rptype = ptype;
                   swaggerResp.schema = ptype;
+                }
+              } else if (schema.hasOwnProperty("allOf")) {
+                // allOf 类型
+                const allOf = schema["allOf"];
+                const newName = that.analysisAllOfOAS3(allOf, swpinfo.oas2);
+                if (newName) {
+                  rptype = newName;
+                  swpinfo.responseParameterRefName = rptype;
+                  swaggerResp.responseParameterRefName = rptype;
+                  definitionType = rptype;
+                  swaggerResp.schema = rptype;
                 }
               } else if (schema.hasOwnProperty("type")) {
                 var t = schema["type"];
