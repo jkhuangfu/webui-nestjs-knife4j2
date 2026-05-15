@@ -3993,6 +3993,37 @@ SwaggerBootstrapUi.prototype.analysisAllOfOAS3 = function (allOf, oas2) {
           propValue = type === "string" ? KUtils.getExample("example", propObj, "") : propObj["example"];
         } else if (KUtils.checkIsBasicType(type)) {
           propValue = KUtils.getBasicTypeValue(type);
+        } else if (type === "array" && propObj.items && propObj.items.$ref) {
+          // 数组类型且items引用了其他schema
+          const regex = new RegExp(refPattern, "ig");
+          const match = regex.exec(propObj.items.$ref);
+          if (match) {
+            const refTypeName = match[1];
+            spropObj.refType = refTypeName;
+            // 递归获取引用类型的值
+            const refSchema = schemas[refTypeName];
+            if (refSchema && refSchema.properties) {
+              const refValue = {};
+              for (const refPropName in refSchema.properties) {
+                const refPropObj = refSchema.properties[refPropName];
+                if (refPropObj.hasOwnProperty("type")) {
+                  const refType = refPropObj["type"];
+                  if (refPropObj.hasOwnProperty("example")) {
+                    refValue[refPropName] = refType === "string" ? KUtils.getExample("example", refPropObj, "") : refPropObj["example"];
+                  } else if (refPropObj.hasOwnProperty("default")) {
+                    refValue[refPropName] = refPropObj["default"];
+                  } else if (KUtils.checkIsBasicType(refType)) {
+                    refValue[refPropName] = KUtils.getBasicTypeValue(refType);
+                  } else {
+                    refValue[refPropName] = "";
+                  }
+                } else {
+                  refValue[refPropName] = "";
+                }
+              }
+              propValue = [refValue];
+            }
+          }
         }
       }
       spropObj.value = propValue;
@@ -4003,12 +4034,31 @@ SwaggerBootstrapUi.prototype.analysisAllOfOAS3 = function (allOf, oas2) {
         const match = regex.exec(propObj.$ref);
         if (match) {
           spropObj.refType = match[1];
-        }
-      } else if (propObj.hasOwnProperty("items") && propObj.items && propObj.items.$ref) {
-        const regex = new RegExp(refPattern, "ig");
-        const match = regex.exec(propObj.items.$ref);
-        if (match) {
-          spropObj.refType = match[1];
+          // 获取引用类型的值
+          const refTypeName = match[1];
+          const refSchema = schemas[refTypeName];
+          if (refSchema && refSchema.properties) {
+            const refValue = {};
+            for (const refPropName in refSchema.properties) {
+              const refPropObj = refSchema.properties[refPropName];
+              if (refPropObj.hasOwnProperty("type")) {
+                const refType = refPropObj["type"];
+                if (refPropObj.hasOwnProperty("example")) {
+                  refValue[refPropName] = refType === "string" ? KUtils.getExample("example", refPropObj, "") : refPropObj["example"];
+                } else if (refPropObj.hasOwnProperty("default")) {
+                  refValue[refPropName] = refPropObj["default"];
+                } else if (KUtils.checkIsBasicType(refType)) {
+                  refValue[refPropName] = KUtils.getBasicTypeValue(refType);
+                } else {
+                  refValue[refPropName] = "";
+                }
+              } else {
+                refValue[refPropName] = "";
+              }
+            }
+            propValue = refValue;
+            spropObj.value = propValue;
+          }
         }
       }
       
